@@ -1,18 +1,16 @@
-# Community Feed - Technical Assessment
+# Community Feed - Technical Assessment (Round 1 & 2)
 
-A React Native mobile application built with Expo, featuring user authentication, a community feed with posts, and optimized performance with caching.
+A React Native mobile application built with Expo, featuring user authentication, a community feed with posts, offline support, smooth animations, and optimized performance.
 
-## Features
+## 🎯 Round 1 Features
 
 ✅ **Authentication**
-
 - Email/password authentication using Supabase
 - Sign up and sign in functionality
 - Persistent sessions with AsyncStorage
 - Automatic navigation to Feed on successful login
 
 ✅ **Feed Screen**
-
 - Display posts from Supabase in a FlatList
 - Pull-to-refresh functionality
 - Infinite scrolling with pagination
@@ -20,19 +18,60 @@ A React Native mobile application built with Expo, featuring user authentication
 - Optimistic UI updates when posting
 
 ✅ **Data Caching**
-
 - TanStack Query (React Query) for data caching
 - Posts cached for 30 seconds (staleTime)
 - Instant load on app reopen (gcTime: 5 minutes)
 - Background refetching
 
 ✅ **FlatList Optimization**
-
 - Pagination (10 posts per page)
 - `removeClippedSubviews` for memory optimization
 - `maxToRenderPerBatch` and `windowSize` configured
 - Loading and error states handled
 - Pull-to-refresh with loading indicator
+
+## 🚀 Round 2 Features (NEW!)
+
+✅ **Offline-First Support**
+- App works without internet connection
+- Existing cached posts visible offline
+- Create posts offline - queued automatically
+- Auto-sync queued posts when back online
+- Offline queue manager with AsyncStorage
+
+✅ **Animations & Micro-interactions**
+- Staggered fade-in animations for posts
+- Smooth slide-in/slide-out transitions
+- Animated button press feedback (scale effect)
+- Pull-to-refresh with smooth animations
+- Success toast with slide-down animation
+- Animated network status banner
+
+✅ **Enhanced UI/UX Design**
+- Consistent design system (colors, spacing, typography)
+- Professional color palette
+- Improved empty states with call-to-action
+- Loading skeletons for better perceived performance
+- Visual feedback for all user interactions
+- Queued posts with special styling and badges
+
+✅ **Gesture-Based Interactions**
+- Swipe-to-delete posts (right swipe)
+- Smooth swipeable cards with react-native-gesture-handler
+- Confirmation dialog before deletion
+
+✅ **Network Status Indicator**
+- Real-time connectivity detection
+- Animated status banner (Offline/Online/Syncing)
+- Visual feedback for network state changes
+- Queue count display when offline
+
+✅ **Design System**
+- Centralized theme with consistent colors
+- Typography system for consistent text styles
+- Spacing and border radius standards
+- Shadow utilities for elevation
+- Animation timing constants
 
 ## Tech Stack
 

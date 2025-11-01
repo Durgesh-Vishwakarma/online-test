@@ -222,7 +222,8 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
       const { error } = await supabase.from("posts").delete().eq("id", postId);
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      Alert.alert("Success", "Post deleted!");
+      setToastMessage("Post deleted successfully!");
+      setShowSuccessToast(true);
     } catch (error) {
       Alert.alert("Error", "Failed to delete post");
     }
