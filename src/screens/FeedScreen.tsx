@@ -42,12 +42,10 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
   const [toastMessage, setToastMessage] = useState("");
   const queryClient = useQueryClient();
   const { isOffline } = useNetworkStatus();
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, setThemeMode } = useTheme();
   
   // Create dynamic styles based on theme
-  const styles = React.useMemo(() => createStyles(colors), [colors]);
-
-  // Load offline queue on mount
+  const styles = React.useMemo(() => createStyles(colors), [colors]);  // Load offline queue on mount
   useEffect(() => {
     loadOfflineQueue();
   }, []);
@@ -244,7 +242,18 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
   const renderHeader = () => (
     <View style={styles.header}>
       <NetworkStatusBanner isSyncing={isSyncing} />
-      <Text style={styles.headerTitle}>Community Feed</Text>
+      <View style={styles.headerTop}>
+        <Text style={styles.headerTitle}>Community Feed</Text>
+        <TouchableOpacity
+          style={styles.themeToggle}
+          onPress={() => {
+            const newMode = isDark ? "light" : "dark";
+            setThemeMode(newMode);
+          }}
+        >
+          <Text style={styles.themeToggleIcon}>{isDark ? "☀️" : "🌙"}</Text>
+        </TouchableOpacity>
+      </View>
       {offlineQueue.length > 0 && (
         <View style={styles.queueInfo}>
           <Text style={styles.queueInfoText}>
@@ -406,209 +415,228 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
   );
 }
 
-const createStyles = (colors: any) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.background,
-  },
-  header: {
-    backgroundColor: colors.surface,
-    padding: 16,
-    paddingTop: 50,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 12,
-    color: colors.textPrimary,
-  },
-  headerButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  createButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-    flex: 1,
-    marginRight: 8,
-    alignItems: "center",
-  },
-  createButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  logoutButton: {
-    backgroundColor: "#ff3b30",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  logoutButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  listContent: {
-    padding: 16,
-  },
-  postCard: {
-    backgroundColor: colors.surface,
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  postAuthor: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 8,
-    color: colors.primary,
-  },
-  postContent: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: colors.textPrimary,
-    lineHeight: 22,
-  },
-  postTime: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  footer: {
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-  errorText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginBottom: 16,
-  },
-  retryButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 6,
-  },
-  retryButtonText: {
-    color: colors.textInverse,
-    fontWeight: "600",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    backgroundColor: colors.surface,
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    minHeight: 300,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    color: colors.textPrimary,
-  },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 120,
-    marginBottom: 16,
-    color: colors.textPrimary,
-    backgroundColor: colors.surface,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: colors.border,
-  },
-  cancelButtonText: {
-    color: colors.textPrimary,
-    fontWeight: "600",
-  },
-  postButton: {
-    backgroundColor: colors.primary,
-  },
-  postButtonText: {
-    color: colors.textInverse,
-    fontWeight: "600",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
-    paddingVertical: 60,
-  },
-  emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: colors.textPrimary,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  emptyStateButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  emptyStateButtonText: {
-    color: colors.textInverse,
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  emptyListContent: {
-    flex: 1,
-  },
-  queueInfo: {
-    backgroundColor: colors.queueBackground,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.queueBorder,
-  },
-  queueInfoText: {
-    color: colors.queueText,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-});
+const createStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    centerContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colors.background,
+    },
+    header: {
+      backgroundColor: colors.surface,
+      padding: 16,
+      paddingTop: 50,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerTop: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 12,
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: colors.textPrimary,
+      flex: 1,
+    },
+    themeToggle: {
+      padding: 8,
+      borderRadius: 20,
+      backgroundColor: colors.border,
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    themeToggleIcon: {
+      fontSize: 22,
+    },
+    headerButtons: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    createButton: {
+      backgroundColor: "#007AFF",
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 6,
+      flex: 1,
+      marginRight: 8,
+      alignItems: "center",
+    },
+    createButtonText: {
+      color: "#fff",
+      fontWeight: "600",
+      fontSize: 14,
+    },
+    logoutButton: {
+      backgroundColor: "#ff3b30",
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 6,
+    },
+    logoutButtonText: {
+      color: "#fff",
+      fontWeight: "600",
+      fontSize: 14,
+    },
+    listContent: {
+      padding: 16,
+    },
+    postCard: {
+      backgroundColor: colors.surface,
+      padding: 16,
+      borderRadius: 8,
+      marginBottom: 12,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    postAuthor: {
+      fontSize: 14,
+      fontWeight: "600",
+      marginBottom: 8,
+      color: colors.primary,
+    },
+    postContent: {
+      fontSize: 16,
+      marginBottom: 8,
+      color: colors.textPrimary,
+      lineHeight: 22,
+    },
+    postTime: {
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+    footer: {
+      paddingVertical: 20,
+      alignItems: "center",
+    },
+    errorText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      marginBottom: 16,
+    },
+    retryButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 24,
+      paddingVertical: 12,
+      borderRadius: 6,
+    },
+    retryButtonText: {
+      color: colors.textInverse,
+      fontWeight: "600",
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: "flex-end",
+      backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    modalContent: {
+      backgroundColor: colors.surface,
+      padding: 20,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      minHeight: 300,
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: "bold",
+      marginBottom: 16,
+      color: colors.textPrimary,
+    },
+    modalInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      minHeight: 120,
+      marginBottom: 16,
+      color: colors.textPrimary,
+      backgroundColor: colors.surface,
+    },
+    modalButtons: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    modalButton: {
+      flex: 1,
+      padding: 16,
+      borderRadius: 8,
+      alignItems: "center",
+    },
+    cancelButton: {
+      backgroundColor: colors.border,
+    },
+    cancelButtonText: {
+      color: colors.textPrimary,
+      fontWeight: "600",
+    },
+    postButton: {
+      backgroundColor: colors.primary,
+    },
+    postButtonText: {
+      color: colors.textInverse,
+      fontWeight: "600",
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    emptyState: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 32,
+      paddingVertical: 60,
+    },
+    emptyStateTitle: {
+      fontSize: 20,
+      fontWeight: "bold",
+      marginBottom: 8,
+      color: colors.textPrimary,
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginBottom: 24,
+    },
+    emptyStateButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 24,
+      paddingVertical: 12,
+      borderRadius: 8,
+    },
+    emptyStateButtonText: {
+      color: colors.textInverse,
+      fontWeight: "600",
+      fontSize: 16,
+    },
+    emptyListContent: {
+      flex: 1,
+    },
+    queueInfo: {
+      backgroundColor: colors.queueBackground,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 8,
+      marginBottom: 12,
+      borderLeftWidth: 3,
+      borderLeftColor: colors.queueBorder,
+    },
+    queueInfoText: {
+      color: colors.queueText,
+      fontSize: 13,
+      fontWeight: "600",
+    },
+  });
