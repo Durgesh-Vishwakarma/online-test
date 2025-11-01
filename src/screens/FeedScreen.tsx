@@ -23,7 +23,8 @@ import SuccessToast from "../components/SuccessToast";
 import AnimatedModal from "../components/AnimatedModal";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { OfflineQueueManager, QueuedPost } from "../utils/offlineQueue";
-import { colors, spacing, borderRadius, typography } from "../theme";
+import { spacing, borderRadius, typography } from "../theme";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface FeedScreenProps {
   onLogout: () => void;
@@ -41,6 +42,10 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
   const [toastMessage, setToastMessage] = useState("");
   const queryClient = useQueryClient();
   const { isOffline } = useNetworkStatus();
+  const { colors, isDark } = useTheme();
+  
+  // Create dynamic styles based on theme
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
 
   // Load offline queue on mount
   useEffect(() => {
@@ -401,29 +406,29 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 16,
     paddingTop: 50,
     borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 12,
-    color: "#333",
+    color: colors.textPrimary,
   },
   headerButtons: {
     flexDirection: "row",
@@ -458,7 +463,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   postCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
@@ -472,17 +477,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 8,
-    color: "#007AFF",
+    color: colors.primary,
   },
   postContent: {
     fontSize: 16,
     marginBottom: 8,
-    color: "#333",
+    color: colors.textPrimary,
     lineHeight: 22,
   },
   postTime: {
     fontSize: 12,
-    color: "#999",
+    color: colors.textSecondary,
   },
   footer: {
     paddingVertical: 20,
@@ -490,17 +495,17 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: "#666",
+    color: colors.textSecondary,
     marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 6,
   },
   retryButtonText: {
-    color: "#fff",
+    color: colors.textInverse,
     fontWeight: "600",
   },
   modalContainer: {
@@ -509,7 +514,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -519,16 +524,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 16,
-    color: "#333",
+    color: colors.textPrimary,
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     minHeight: 120,
     marginBottom: 16,
+    color: colors.textPrimary,
+    backgroundColor: colors.surface,
   },
   modalButtons: {
     flexDirection: "row",
@@ -541,17 +548,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: colors.border,
   },
   cancelButtonText: {
-    color: "#333",
+    color: colors.textPrimary,
     fontWeight: "600",
   },
   postButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
   },
   postButtonText: {
-    color: "#fff",
+    color: colors.textInverse,
     fontWeight: "600",
   },
   buttonDisabled: {
@@ -568,22 +575,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 8,
-    color: "#333",
+    color: colors.textPrimary,
   },
   emptyStateText: {
     fontSize: 16,
-    color: "#666",
+    color: colors.textSecondary,
     textAlign: "center",
     marginBottom: 24,
   },
   emptyStateButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   emptyStateButtonText: {
-    color: "#fff",
+    color: colors.textInverse,
     fontWeight: "600",
     fontSize: 16,
   },
@@ -591,16 +598,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   queueInfo: {
-    backgroundColor: "#FFF3CD",
+    backgroundColor: colors.queueBackground,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
     marginBottom: 12,
     borderLeftWidth: 3,
-    borderLeftColor: "#FF9500",
+    borderLeftColor: colors.queueBorder,
   },
   queueInfoText: {
-    color: "#856404",
+    color: colors.queueText,
     fontSize: 13,
     fontWeight: "600",
   },
