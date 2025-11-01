@@ -46,6 +46,24 @@ A React Native mobile application built with Expo, featuring user authentication
 - All animations use `useNativeDriver: true` for 60fps performance
 - Design system with reusable animation configurations and easing curves
 
+✅ **Dark Mode Support**
+
+- Full dark mode theme with light/dark/auto modes
+- System-aware theme detection (follows device settings)
+- Persistent theme preference with AsyncStorage
+- Dynamic color system for all components
+- Smooth theme transitions
+- Proper contrast ratios for accessibility
+
+✅ **Offline-First Architecture**
+
+- App works without internet - cached data remains visible
+- Posts created offline are queued automatically
+- Auto-sync when connection restored
+- Network status indicator (Offline/Syncing/Online)
+- AsyncStorage-based persistence
+- Visual feedback for queued posts with badges
+
 ## Tech Stack
 
 - **Framework**: Expo (React Native)
