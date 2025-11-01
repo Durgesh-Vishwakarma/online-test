@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,10 +12,16 @@ import {
   Alert,
   Keyboard,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../config/supabase";
 import { Post } from "../types";
 import PostSkeleton from "../components/PostSkeleton";
+import AnimatedPostCard from "../components/AnimatedPostCard";
+import AnimatedButton from "../components/AnimatedButton";
+import NetworkStatusBanner from "../components/NetworkStatusBanner";
+import { useNetworkStatus } from "../hooks/useNetworkStatus";
+import { OfflineQueueManager, QueuedPost } from "../utils/offlineQueue";
 
 interface FeedScreenProps {
   onLogout: () => void;
@@ -27,7 +33,50 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
   const [page, setPage] = useState(0);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [newPostContent, setNewPostContent] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [offlineQueue, setOfflineQueue] = useState<QueuedPost[]>([]);
   const queryClient = useQueryClient();
+  const { isOffline } = useNetworkStatus();
+
+  // Load offline queue on mount
+  useEffect(() => {
+    loadOfflineQueue();
+  }, []);
+
+  // Sync queue when coming back online
+  useEffect(() => {
+    if (!isOffline && offlineQueue.length > 0) {
+      syncOfflineQueue();
+    }
+  }, [isOffline]);
+
+  const loadOfflineQueue = async () => {
+    const queue = await OfflineQueueManager.getQueue();
+    setOfflineQueue(queue);
+  };
+
+  const syncOfflineQueue = async () => {
+    if (offlineQueue.length === 0) return;
+
+    setIsSyncing(true);
+    for (const queuedPost of offlineQueue) {
+      try {
+        await supabase.from("posts").insert([
+          {
+            content: queuedPost.content,
+            author_email: queuedPost.author_email,
+            user_id: queuedPost.user_id,
+          },
+        ]);
+        await OfflineQueueManager.removeFromQueue(queuedPost.id);
+      } catch (error) {
+        console.error("Failed to sync post:", error);
+      }
+    }
+    await loadOfflineQueue();
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
+    setIsSyncing(false);
+  };
 
   // Fetch posts with pagination
   const {
@@ -117,12 +166,37 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
     },
   });
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!newPostContent.trim()) {
       Alert.alert("Error", "Post content cannot be empty");
       return;
     }
-    createPostMutation.mutate(newPostContent.trim());
+
+    if (isOffline) {
+      // Queue post for later sync
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        Alert.alert("Error", "Not authenticated");
+        return;
+      }
+
+      const queuedPost = await OfflineQueueManager.addToQueue({
+        content: newPostContent.trim(),
+        author_email: user.email || "",
+        user_id: user.id,
+        created_at: new Date().toISOString(),
+      });
+
+      await loadOfflineQueue();
+      setIsCreateModalVisible(false);
+      setNewPostContent("");
+      Alert.alert("Offline", "Post queued. Will sync when online!");
+    } else {
+      createPostMutation.mutate(newPostContent.trim());
+    }
   };
 
   const handleLogout = async () => {
@@ -136,29 +210,50 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
     }
   }, [isFetching, posts.length, page]);
 
-  const renderPost = ({ item }: { item: Post }) => (
-    <View style={styles.postCard}>
-      <Text style={styles.postAuthor}>{item.author_email}</Text>
-      <Text style={styles.postContent}>{item.content}</Text>
-      <Text style={styles.postTime}>
-        {new Date(item.created_at).toLocaleString()}
-      </Text>
-    </View>
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const { error } = await supabase.from("posts").delete().eq("id", postId);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      Alert.alert("Success", "Post deleted!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete post");
+    }
+  };
+
+  const renderPost = ({ item, index }: { item: Post; index: number }) => (
+    <AnimatedPostCard
+      item={item}
+      index={index}
+      onDelete={item.user_id ? handleDeletePost : undefined}
+    />
   );
 
   const renderHeader = () => (
     <View style={styles.header}>
+      <NetworkStatusBanner isSyncing={isSyncing} />
       <Text style={styles.headerTitle}>Community Feed</Text>
+      {offlineQueue.length > 0 && (
+        <View style={styles.queueInfo}>
+          <Text style={styles.queueInfoText}>
+            📮 {offlineQueue.length} post{offlineQueue.length > 1 ? "s" : ""}{" "}
+            queued
+          </Text>
+        </View>
+      )}
       <View style={styles.headerButtons}>
-        <TouchableOpacity
-          style={styles.createButton}
+        <AnimatedButton
+          title="+ New Post"
+          icon="✍️"
           onPress={() => setIsCreateModalVisible(true)}
-        >
-          <Text style={styles.createButtonText}>+ New Post</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
+          style={styles.createButton}
+        />
+        <AnimatedButton
+          title="Logout"
+          variant="danger"
+          onPress={handleLogout}
+          style={styles.logoutButton}
+        />
       </View>
     </View>
   );
@@ -211,13 +306,17 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
     </View>
   );
 
+  // Merge queued posts with fetched posts
+  const allPosts = [...offlineQueue, ...posts];
+
   return (
-    <View style={styles.container}>
-      {renderHeader()}
-      <FlatList
-        data={posts}
-        renderItem={renderPost}
-        keyExtractor={(item) => item.id}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {renderHeader()}
+        <FlatList
+          data={allPosts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.id}
         refreshControl={
           <RefreshControl
             refreshing={isFetching && page === 0}
@@ -288,7 +387,8 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
           </View>
         </View>
       </Modal>
-    </View>
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -480,5 +580,19 @@ const styles = StyleSheet.create({
   },
   emptyListContent: {
     flex: 1,
+  },
+  queueInfo: {
+    backgroundColor: "#FFF3CD",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: "#FF9500",
+  },
+  queueInfoText: {
+    color: "#856404",
+    fontSize: 13,
+    fontWeight: "600",
   },
 });
