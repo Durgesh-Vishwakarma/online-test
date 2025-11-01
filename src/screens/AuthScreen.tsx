@@ -11,6 +11,7 @@ import {
   Platform,
 } from "react-native";
 import { supabase } from "../config/supabase";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface AuthScreenProps {
   onAuthSuccess: () => void;
@@ -21,6 +22,9 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const { colors } = useTheme();
+  
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
 
   const handleAuth = async () => {
     if (!email || !password) {
@@ -112,10 +116,10 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
@@ -127,25 +131,26 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
     textAlign: "center",
-    color: "#333",
+    color: colors.textPrimary,
   },
   subtitle: {
     fontSize: 18,
     marginBottom: 32,
     textAlign: "center",
-    color: "#666",
+    color: colors.textSecondary,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 8,
     marginBottom: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: colors.border,
+    color: colors.textPrimary,
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
@@ -155,13 +160,13 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.textInverse,
     fontSize: 16,
     fontWeight: "600",
   },
   switchText: {
     textAlign: "center",
-    color: "#007AFF",
+    color: colors.primary,
     fontSize: 14,
   },
 });
