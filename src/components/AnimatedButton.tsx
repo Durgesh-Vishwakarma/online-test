@@ -26,21 +26,38 @@ export default function AnimatedButton({
   ...props
 }: AnimatedButtonProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.95,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 0.94,
+        friction: 4,
+        tension: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 0.85,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 3,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 4,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const getVariantStyles = () => {
@@ -68,7 +85,11 @@ export default function AnimatedButton({
       <Animated.View
         style={[
           styles.button,
-          { backgroundColor: bg, transform: [{ scale: scaleAnim }] },
+          {
+            backgroundColor: bg,
+            opacity: opacityAnim,
+            transform: [{ scale: scaleAnim }],
+          },
           (disabled || loading) && styles.disabled,
           style,
         ]}

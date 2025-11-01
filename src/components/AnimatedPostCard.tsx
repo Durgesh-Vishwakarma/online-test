@@ -6,6 +6,7 @@ import {
   Animated,
   TouchableOpacity,
   Alert,
+  Easing,
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { Post } from "../types";
@@ -22,29 +23,33 @@ export default function AnimatedPostCard({
   onDelete,
 }: AnimatedPostCardProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
-  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   useEffect(() => {
-    // Staggered animation for each post
+    // Smooth staggered animation with better easing
+    const delay = Math.min(index * 60, 500); // Cap delay at 500ms
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 400,
-        delay: index * 100,
+        duration: 600,
+        delay,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth cubic-bezier
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 400,
-        delay: index * 100,
+        duration: 600,
+        delay,
+        easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
       Animated.spring(scaleAnim, {
         toValue: 1,
-        delay: index * 100,
-        friction: 8,
-        tension: 40,
+        delay,
+        friction: 9,
+        tension: 50,
         useNativeDriver: true,
       }),
     ]).start();
