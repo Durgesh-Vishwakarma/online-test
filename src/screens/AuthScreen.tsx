@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,22 +9,22 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import { supabase } from '../config/supabase';
+} from "react-native";
+import { supabase } from "../config/supabase";
 
 interface AuthScreenProps {
   onAuthSuccess: () => void;
 }
 
 export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
   const handleAuth = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
@@ -36,7 +36,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           password,
         });
         if (error) throw error;
-        Alert.alert('Success', 'Account created! Please sign in.');
+        Alert.alert("Success", "Account created! Please sign in.");
         setIsSignUp(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -47,7 +47,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         onAuthSuccess();
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Authentication failed');
+      Alert.alert("Error", error.message || "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -56,12 +56,12 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.content}>
         <Text style={styles.title}>Community Feed</Text>
         <Text style={styles.subtitle}>
-          {isSignUp ? 'Create Account' : 'Welcome Back'}
+          {isSignUp ? "Create Account" : "Welcome Back"}
         </Text>
 
         <TextInput
@@ -92,7 +92,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.buttonText}>
-              {isSignUp ? 'Sign Up' : 'Sign In'}
+              {isSignUp ? "Sign Up" : "Sign In"}
             </Text>
           )}
         </TouchableOpacity>
@@ -103,7 +103,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         >
           <Text style={styles.switchText}>
             {isSignUp
-              ? 'Already have an account? Sign In'
+              ? "Already have an account? Sign In"
               : "Don't have an account? Sign Up"}
           </Text>
         </TouchableOpacity>
@@ -115,53 +115,53 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 24,
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
-    textAlign: 'center',
-    color: '#333',
+    textAlign: "center",
+    color: "#333",
   },
   subtitle: {
     fontSize: 18,
     marginBottom: 32,
-    textAlign: 'center',
-    color: '#666',
+    textAlign: "center",
+    color: "#666",
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 8,
     marginBottom: 16,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
     padding: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 16,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   switchText: {
-    textAlign: 'center',
-    color: '#007AFF',
+    textAlign: "center",
+    color: "#007AFF",
     fontSize: 14,
   },
 });

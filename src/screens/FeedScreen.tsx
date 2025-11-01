@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,10 +11,10 @@ import {
   Modal,
   Alert,
   Keyboard,
-} from 'react-native';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../config/supabase';
-import { Post } from '../types';
+} from "react-native";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../config/supabase";
+import { Post } from "../types";
 
 interface FeedScreenProps {
   onLogout: () => void;
@@ -25,7 +25,7 @@ const POSTS_PER_PAGE = 10;
 export default function FeedScreen({ onLogout }: FeedScreenProps) {
   const [page, setPage] = useState(0);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-  const [newPostContent, setNewPostContent] = useState('');
+  const [newPostContent, setNewPostContent] = useState("");
   const queryClient = useQueryClient();
 
   // Fetch posts with pagination
@@ -36,12 +36,12 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
     refetch,
     isFetching,
   } = useQuery({
-    queryKey: ['posts', page],
+    queryKey: ["posts", page],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .from("posts")
+        .select("*")
+        .order("created_at", { ascending: false })
         .range(page * POSTS_PER_PAGE, (page + 1) * POSTS_PER_PAGE - 1);
 
       if (error) throw error;
@@ -57,10 +57,10 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from('posts')
+        .from("posts")
         .insert([
           {
             content,
@@ -76,25 +76,25 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
     },
     onMutate: async (content: string) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['posts', 0] });
+      await queryClient.cancelQueries({ queryKey: ["posts", 0] });
 
       // Snapshot the previous value
-      const previousPosts = queryClient.getQueryData(['posts', 0]);
+      const previousPosts = queryClient.getQueryData(["posts", 0]);
 
       // Optimistically update to the new value
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      
+
       const optimisticPost: Post = {
-        id: 'temp-' + Date.now(),
+        id: "temp-" + Date.now(),
         content,
-        author_email: user?.email || '',
-        user_id: user?.id || '',
+        author_email: user?.email || "",
+        user_id: user?.id || "",
         created_at: new Date().toISOString(),
       };
 
-      queryClient.setQueryData(['posts', 0], (old: Post[] = []) => [
+      queryClient.setQueryData(["posts", 0], (old: Post[] = []) => [
         optimisticPost,
         ...old,
       ]);
@@ -104,21 +104,21 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
     onError: (err, newPost, context) => {
       // Rollback on error
       if (context?.previousPosts) {
-        queryClient.setQueryData(['posts', 0], context.previousPosts);
+        queryClient.setQueryData(["posts", 0], context.previousPosts);
       }
-      Alert.alert('Error', 'Failed to create post');
+      Alert.alert("Error", "Failed to create post");
     },
     onSuccess: () => {
       // Refetch to get the real data
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
       setIsCreateModalVisible(false);
-      setNewPostContent('');
+      setNewPostContent("");
     },
   });
 
   const handleCreatePost = () => {
     if (!newPostContent.trim()) {
-      Alert.alert('Error', 'Post content cannot be empty');
+      Alert.alert("Error", "Post content cannot be empty");
       return;
     }
     createPostMutation.mutate(newPostContent.trim());
@@ -240,7 +240,7 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => {
                   setIsCreateModalVisible(false);
-                  setNewPostContent('');
+                  setNewPostContent("");
                 }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
@@ -271,65 +271,65 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 16,
     paddingTop: 50,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 12,
-    color: '#333',
+    color: "#333",
   },
   headerButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   createButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
     flex: 1,
     marginRight: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   createButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 14,
   },
   logoutButton: {
-    backgroundColor: '#ff3b30',
+    backgroundColor: "#ff3b30",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
   },
   logoutButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 14,
   },
   listContent: {
     padding: 16,
   },
   postCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -337,46 +337,46 @@ const styles = StyleSheet.create({
   },
   postAuthor: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
-    color: '#007AFF',
+    color: "#007AFF",
   },
   postContent: {
     fontSize: 16,
     marginBottom: 8,
-    color: '#333',
+    color: "#333",
     lineHeight: 22,
   },
   postTime: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
   },
   footer: {
     paddingVertical: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   errorText: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
     marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 6,
   },
   retryButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -384,13 +384,13 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    color: '#333',
+    color: "#333",
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
@@ -398,28 +398,28 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   modalButton: {
     flex: 1,
     padding: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
   },
   cancelButtonText: {
-    color: '#333',
-    fontWeight: '600',
+    color: "#333",
+    fontWeight: "600",
   },
   postButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
   },
   postButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   buttonDisabled: {
     opacity: 0.6,

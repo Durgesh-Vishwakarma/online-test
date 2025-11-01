@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { supabase } from './src/config/supabase';
-import AuthScreen from './src/screens/AuthScreen';
-import FeedScreen from './src/screens/FeedScreen';
+import React, { useState, useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { supabase } from "./src/config/supabase";
+import AuthScreen from "./src/screens/AuthScreen";
+import FeedScreen from "./src/screens/FeedScreen";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -28,11 +28,11 @@ export default function App() {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setIsAuthenticated(!!session);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -60,8 +60,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
