@@ -232,7 +232,9 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
         ListEmptyComponent={!isLoading ? renderEmptyState : null}
-        contentContainerStyle={posts.length === 0 ? styles.emptyListContent : styles.listContent}
+        contentContainerStyle={
+          posts.length === 0 ? styles.emptyListContent : styles.listContent
+        }
         removeClippedSubviews={true}
         maxToRenderPerBatch={10}
         windowSize={10}

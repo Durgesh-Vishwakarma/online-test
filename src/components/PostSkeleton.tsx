@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import React from "react";
+import { View, StyleSheet, Animated } from "react-native";
 
 export default function PostSkeleton() {
   const opacity = React.useRef(new Animated.Value(0.3)).current;
@@ -33,7 +33,7 @@ export default function PostSkeleton() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
@@ -41,27 +41,27 @@ const styles = StyleSheet.create({
   author: {
     height: 16,
     width: 150,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
     borderRadius: 4,
     marginBottom: 8,
   },
   content: {
     height: 14,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
     borderRadius: 4,
     marginBottom: 6,
   },
   contentShort: {
     height: 14,
-    width: '70%',
-    backgroundColor: '#e0e0e0',
+    width: "70%",
+    backgroundColor: "#e0e0e0",
     borderRadius: 4,
     marginBottom: 8,
   },
   time: {
     height: 12,
     width: 100,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
     borderRadius: 4,
   },
 });

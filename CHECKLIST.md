@@ -3,6 +3,7 @@
 ## ✅ Required Features
 
 ### Authentication
+
 - [ ] Supabase email/password authentication implemented
 - [ ] Sign up functionality working
 - [ ] Sign in functionality working
@@ -10,6 +11,7 @@
 - [ ] Session persists (stays logged in after app restart)
 
 ### Feed Screen
+
 - [ ] Posts fetched from Supabase
 - [ ] Posts displayed using FlatList
 - [ ] Pull-to-refresh implemented and working
@@ -17,12 +19,14 @@
 - [ ] Optimistic UI update when posting (post appears immediately)
 
 ### Data Caching
+
 - [ ] TanStack Query (React Query) integrated
 - [ ] Posts cache instantly on app reopen
 - [ ] No network wait when reopening app (cached data shows first)
 - [ ] Background refetch after showing cached data
 
 ### FlatList Optimization
+
 - [ ] Pagination implemented (loads more posts when scrolling)
 - [ ] Infinite scrolling working
 - [ ] Loading state shown while fetching
@@ -112,27 +116,31 @@
 
 ## ⏰ Time Management
 
-- Start Time: __________
-- Current Time: __________
-- Time Remaining: __________
+- Start Time: ****\_\_****
+- Current Time: ****\_\_****
+- Time Remaining: ****\_\_****
 
 Remember: You have 1.5 hours total. Prioritize completing all required features before adding extras!
 
 ## 🆘 Quick Troubleshooting
 
 **App won't start?**
+
 - Try: `npm install` then `npx expo start -c`
 
 **Can't sign in?**
+
 - Check Supabase credentials in `src/config/supabase.ts`
 - Verify email confirmation is disabled in Supabase
 
 **Posts not loading?**
+
 - Verify SQL table was created
 - Check RLS policies are set up
 - Look at Supabase logs for errors
 
 **Cache not working?**
+
 - Check React Query is configured correctly
 - Look for any console errors
 
