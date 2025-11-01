@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { supabase } from "./src/config/supabase";
 import AuthScreen from "./src/screens/AuthScreen";
 import FeedScreen from "./src/screens/FeedScreen";
+import { ThemeProvider } from "./src/contexts/ThemeContext";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -46,14 +47,16 @@ export default function App() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <StatusBar style="auto" />
-      {isAuthenticated ? (
-        <FeedScreen onLogout={() => setIsAuthenticated(false)} />
-      ) : (
-        <AuthScreen onAuthSuccess={() => setIsAuthenticated(true)} />
-      )}
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <StatusBar style="auto" />
+        {isAuthenticated ? (
+          <FeedScreen onLogout={() => setIsAuthenticated(false)} />
+        ) : (
+          <AuthScreen onAuthSuccess={() => setIsAuthenticated(true)} />
+        )}
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

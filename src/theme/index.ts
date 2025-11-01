@@ -1,5 +1,7 @@
 // Design System & Theme
-export const colors = {
+
+// Light Mode Colors
+export const lightColors = {
   // Primary
   primary: "#007AFF",
   primaryDark: "#0051D5",
@@ -27,6 +29,39 @@ export const colors = {
   queueBorder: "#FF9500",
   queueText: "#856404",
 };
+
+// Dark Mode Colors
+export const darkColors = {
+  // Primary
+  primary: "#0A84FF",
+  primaryDark: "#409CFF",
+  primaryLight: "#64B5F6",
+
+  // Status
+  success: "#32D74B",
+  warning: "#FF9F0A",
+  error: "#FF453A",
+  info: "#5E5CE6",
+
+  // Neutral
+  background: "#000000",
+  surface: "#1C1C1E",
+  border: "#38383A",
+
+  // Text
+  textPrimary: "#FFFFFF",
+  textSecondary: "#98989D",
+  textTertiary: "#48484A",
+  textInverse: "#000000",
+
+  // Offline/Queue
+  queueBackground: "#2C2416",
+  queueBorder: "#FF9F0A",
+  queueText: "#FFD60A",
+};
+
+// Default export for backward compatibility
+export const colors = lightColors;
 
 export const spacing = {
   xs: 4,
