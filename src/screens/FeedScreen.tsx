@@ -8,7 +8,6 @@ import {
   RefreshControl,
   ActivityIndicator,
   TextInput,
-  Modal,
   Alert,
   Keyboard,
 } from "react-native";
@@ -21,6 +20,7 @@ import AnimatedPostCard from "../components/AnimatedPostCard";
 import AnimatedButton from "../components/AnimatedButton";
 import NetworkStatusBanner from "../components/NetworkStatusBanner";
 import SuccessToast from "../components/SuccessToast";
+import AnimatedModal from "../components/AnimatedModal";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { OfflineQueueManager, QueuedPost } from "../utils/offlineQueue";
 import { colors, spacing, borderRadius, typography } from "../theme";
@@ -222,8 +222,7 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
       const { error } = await supabase.from("posts").delete().eq("id", postId);
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      setToastMessage("Post deleted successfully!");
-      setShowSuccessToast(true);
+      Alert.alert("Success", "Post deleted!");
     } catch (error) {
       Alert.alert("Error", "Failed to delete post");
     }
@@ -353,53 +352,50 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
           initialNumToRender={10}
         />
 
-        <Modal
+        <AnimatedModal
           visible={isCreateModalVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setIsCreateModalVisible(false)}
+          onClose={() => {
+            setIsCreateModalVisible(false);
+            setNewPostContent("");
+          }}
         >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Create New Post</Text>
-              <TextInput
-                style={styles.modalInput}
-                placeholder="What's on your mind?"
-                value={newPostContent}
-                onChangeText={setNewPostContent}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-              />
-              <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => {
-                    setIsCreateModalVisible(false);
-                    setNewPostContent("");
-                  }}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.modalButton,
-                    styles.postButton,
-                    createPostMutation.isPending && styles.buttonDisabled,
-                  ]}
-                  onPress={handleCreatePost}
-                  disabled={createPostMutation.isPending}
-                >
-                  {createPostMutation.isPending ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <Text style={styles.postButtonText}>Post</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
+          <Text style={styles.modalTitle}>Create New Post</Text>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="What's on your mind?"
+            value={newPostContent}
+            onChangeText={setNewPostContent}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => {
+                setIsCreateModalVisible(false);
+                setNewPostContent("");
+              }}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.modalButton,
+                styles.postButton,
+                createPostMutation.isPending && styles.buttonDisabled,
+              ]}
+              onPress={handleCreatePost}
+              disabled={createPostMutation.isPending}
+            >
+              {createPostMutation.isPending ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.postButtonText}>Post</Text>
+              )}
+            </TouchableOpacity>
           </View>
-        </Modal>
+        </AnimatedModal>
       </View>
     </GestureHandlerRootView>
   );
