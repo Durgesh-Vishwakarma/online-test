@@ -113,7 +113,39 @@ export const shadows = {
 };
 
 export const animations = {
+  instant: 100,
   fast: 200,
   normal: 300,
+  moderate: 400,
   slow: 500,
+  slower: 600,
+};
+
+export const springConfig = {
+  gentle: {
+    friction: 10,
+    tension: 50,
+  },
+  smooth: {
+    friction: 9,
+    tension: 70,
+  },
+  bouncy: {
+    friction: 7,
+    tension: 80,
+  },
+  snappy: {
+    friction: 8,
+    tension: 100,
+  },
+};
+
+export const easingCurves = {
+  // Material Design easing
+  standard: [0.4, 0, 0.2, 1],
+  accelerate: [0.4, 0, 1, 1],
+  decelerate: [0, 0, 0.2, 1],
+  // Custom smooth curves
+  smooth: [0.25, 0.1, 0.25, 1],
+  elastic: [0.68, -0.55, 0.265, 1.55],
 };
