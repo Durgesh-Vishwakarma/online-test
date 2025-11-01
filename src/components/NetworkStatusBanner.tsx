@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
+import { View, Text, StyleSheet, Animated, Easing } from "react-native";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 
 interface NetworkStatusBannerProps {
@@ -10,35 +10,50 @@ export default function NetworkStatusBanner({
   isSyncing = false,
 }: NetworkStatusBannerProps) {
   const { isOffline } = useNetworkStatus();
-  const slideAnim = useRef(new Animated.Value(-50)).current;
+  const slideAnim = useRef(new Animated.Value(-60)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
   useEffect(() => {
     if (isOffline || isSyncing) {
-      // Slide down and fade in
+      // Smooth slide down with spring effect
       Animated.parallel([
-        Animated.timing(slideAnim, {
+        Animated.spring(slideAnim, {
           toValue: 0,
-          duration: 300,
+          friction: 9,
+          tension: 80,
           useNativeDriver: true,
         }),
         Animated.timing(opacityAnim, {
           toValue: 1,
-          duration: 300,
+          duration: 400,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 8,
+          tension: 70,
           useNativeDriver: true,
         }),
       ]).start();
     } else {
-      // Slide up and fade out
+      // Smooth slide up
       Animated.parallel([
         Animated.timing(slideAnim, {
-          toValue: -50,
-          duration: 300,
+          toValue: -60,
+          duration: 350,
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
           useNativeDriver: true,
         }),
         Animated.timing(opacityAnim, {
           toValue: 0,
-          duration: 300,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.95,
+          duration: 250,
           useNativeDriver: true,
         }),
       ]).start();
@@ -68,7 +83,7 @@ export default function NetworkStatusBanner({
         styles.banner,
         { backgroundColor: color },
         {
-          transform: [{ translateY: slideAnim }],
+          transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
           opacity: opacityAnim,
         },
       ]}

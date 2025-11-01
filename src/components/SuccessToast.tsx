@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
+import { View, Text, StyleSheet, Animated, Easing } from "react-native";
 
 interface SuccessToastProps {
   message: string;
@@ -12,32 +12,41 @@ export default function SuccessToast({
   visible,
   onHide,
 }: SuccessToastProps) {
-  const translateY = useRef(new Animated.Value(-100)).current;
+  const translateY = useRef(new Animated.Value(-120)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.85)).current;
 
   useEffect(() => {
     if (visible) {
-      // Show animation
+      // Show animation with bounce
       Animated.parallel([
         Animated.spring(translateY, {
           toValue: 0,
-          friction: 8,
-          tension: 65,
+          friction: 7,
+          tension: 70,
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
           toValue: 1,
-          duration: 300,
+          duration: 400,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 6,
+          tension: 80,
           useNativeDriver: true,
         }),
       ]).start();
 
-      // Auto hide after 2 seconds
+      // Auto hide after 2.5 seconds
       const timer = setTimeout(() => {
         Animated.parallel([
           Animated.timing(translateY, {
-            toValue: -100,
-            duration: 300,
+            toValue: -120,
+            duration: 350,
+            easing: Easing.bezier(0.4, 0, 0.2, 1),
             useNativeDriver: true,
           }),
           Animated.timing(opacity, {
@@ -45,8 +54,13 @@ export default function SuccessToast({
             duration: 300,
             useNativeDriver: true,
           }),
+          Animated.timing(scaleAnim, {
+            toValue: 0.85,
+            duration: 300,
+            useNativeDriver: true,
+          }),
         ]).start(() => onHide());
-      }, 2000);
+      }, 2500);
 
       return () => clearTimeout(timer);
     }
@@ -59,7 +73,7 @@ export default function SuccessToast({
       style={[
         styles.container,
         {
-          transform: [{ translateY }],
+          transform: [{ translateY }, { scale: scaleAnim }],
           opacity,
         },
       ]}
