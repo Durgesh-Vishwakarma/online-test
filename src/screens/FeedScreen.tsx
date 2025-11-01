@@ -20,8 +20,10 @@ import PostSkeleton from "../components/PostSkeleton";
 import AnimatedPostCard from "../components/AnimatedPostCard";
 import AnimatedButton from "../components/AnimatedButton";
 import NetworkStatusBanner from "../components/NetworkStatusBanner";
+import SuccessToast from "../components/SuccessToast";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { OfflineQueueManager, QueuedPost } from "../utils/offlineQueue";
+import { colors, spacing, borderRadius, typography } from "../theme";
 
 interface FeedScreenProps {
   onLogout: () => void;
@@ -35,6 +37,8 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
   const [newPostContent, setNewPostContent] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
   const [offlineQueue, setOfflineQueue] = useState<QueuedPost[]>([]);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const queryClient = useQueryClient();
   const { isOffline } = useNetworkStatus();
 
@@ -163,6 +167,8 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       setIsCreateModalVisible(false);
       setNewPostContent("");
+      setToastMessage("Post created successfully!");
+      setShowSuccessToast(true);
     },
   });
 
@@ -193,7 +199,8 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
       await loadOfflineQueue();
       setIsCreateModalVisible(false);
       setNewPostContent("");
-      Alert.alert("Offline", "Post queued. Will sync when online!");
+      setToastMessage("Post queued for sync!");
+      setShowSuccessToast(true);
     } else {
       createPostMutation.mutate(newPostContent.trim());
     }
@@ -312,81 +319,86 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
+        <SuccessToast
+          message={toastMessage}
+          visible={showSuccessToast}
+          onHide={() => setShowSuccessToast(false)}
+        />
         {renderHeader()}
         <FlatList
           data={allPosts}
           renderItem={renderPost}
           keyExtractor={(item) => item.id}
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching && page === 0}
-            onRefresh={() => {
-              setPage(0);
-              refetch();
-            }}
-            tintColor="#007AFF"
-          />
-        }
-        onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={renderFooter}
-        ListEmptyComponent={!isLoading ? renderEmptyState : null}
-        contentContainerStyle={
-          posts.length === 0 ? styles.emptyListContent : styles.listContent
-        }
-        removeClippedSubviews={true}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-        initialNumToRender={10}
-      />
-
-      <Modal
-        visible={isCreateModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setIsCreateModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Create New Post</Text>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="What's on your mind?"
-              value={newPostContent}
-              onChangeText={setNewPostContent}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching && page === 0}
+              onRefresh={() => {
+                setPage(0);
+                refetch();
+              }}
+              tintColor="#007AFF"
             />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setIsCreateModalVisible(false);
-                  setNewPostContent("");
-                }}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.modalButton,
-                  styles.postButton,
-                  createPostMutation.isPending && styles.buttonDisabled,
-                ]}
-                onPress={handleCreatePost}
-                disabled={createPostMutation.isPending}
-              >
-                {createPostMutation.isPending ? (
-                  <ActivityIndicator color="#fff" size="small" />
-                ) : (
-                  <Text style={styles.postButtonText}>Post</Text>
-                )}
-              </TouchableOpacity>
+          }
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={!isLoading ? renderEmptyState : null}
+          contentContainerStyle={
+            posts.length === 0 ? styles.emptyListContent : styles.listContent
+          }
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          initialNumToRender={10}
+        />
+
+        <Modal
+          visible={isCreateModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setIsCreateModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Create New Post</Text>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="What's on your mind?"
+                value={newPostContent}
+                onChangeText={setNewPostContent}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => {
+                    setIsCreateModalVisible(false);
+                    setNewPostContent("");
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.modalButton,
+                    styles.postButton,
+                    createPostMutation.isPending && styles.buttonDisabled,
+                  ]}
+                  onPress={handleCreatePost}
+                  disabled={createPostMutation.isPending}
+                >
+                  {createPostMutation.isPending ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <Text style={styles.postButtonText}>Post</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
       </View>
     </GestureHandlerRootView>
   );
