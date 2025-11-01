@@ -15,6 +15,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../config/supabase";
 import { Post } from "../types";
+import PostSkeleton from "../components/PostSkeleton";
 
 interface FeedScreenProps {
   onLogout: () => void;
@@ -173,8 +174,13 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
 
   if (isLoading && posts.length === 0) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+      <View style={styles.container}>
+        {renderHeader()}
+        <View style={styles.listContent}>
+          <PostSkeleton />
+          <PostSkeleton />
+          <PostSkeleton />
+        </View>
       </View>
     );
   }
@@ -189,6 +195,21 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
       </View>
     );
   }
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyStateTitle}>No posts yet</Text>
+      <Text style={styles.emptyStateText}>
+        Be the first to share something with the community!
+      </Text>
+      <TouchableOpacity
+        style={styles.emptyStateButton}
+        onPress={() => setIsCreateModalVisible(true)}
+      >
+        <Text style={styles.emptyStateButtonText}>Create First Post</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -210,7 +231,8 @@ export default function FeedScreen({ onLogout }: FeedScreenProps) {
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={!isLoading ? renderEmptyState : null}
+        contentContainerStyle={posts.length === 0 ? styles.emptyListContent : styles.listContent}
         removeClippedSubviews={true}
         maxToRenderPerBatch={10}
         windowSize={10}
@@ -423,5 +445,38 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
+    paddingVertical: 60,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  emptyStateButton: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  emptyStateButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  emptyListContent: {
+    flex: 1,
   },
 });
